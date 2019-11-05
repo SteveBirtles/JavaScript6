@@ -1,22 +1,20 @@
 let w = 0, h = 0;
+let pressedKeys = {};
 let lastTimestamp = 0;
 
+const backgroundImage = new Image();
 const playerImage = new Image();
 const invaderImages = [];
-const backgroundImage = new Image();
 
 const imageCount = 5;
 let loadedImageCount = 0;
 
-let invaders = [];
-let projectiles = [];
-
-let pressedKeys = {};
-
-let player = {};
-
 const invaderReload = 60;
 const playerReload = 0.5;
+
+let invaders = [];
+let player = {};
+let projectiles = [];
 
 function pageLoad() {
 
