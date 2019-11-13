@@ -213,7 +213,7 @@ function inputs() {
         } else if (pressedKeys["ArrowRight"]) {
             player.dx = 400;
         } else {
-            player.dx *= 0.75;
+            player.dx *= 0.8;
         }
 
         if (pressedKeys["ArrowUp"] && player.reload <= 0) {

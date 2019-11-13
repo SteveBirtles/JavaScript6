@@ -126,6 +126,8 @@ class Invader {
 
   update(frameLength) {
     this.x += this.dx * frameLength;
+    this.edge = this.x > w - 32 || this.x < 32;
+    projectiles.push(new Projectile(this.x, this.y+25, 250, false));
   }
 
 }
@@ -145,7 +147,31 @@ function prepareInvaders() {
 
 class Projectile {
 
-    //TO-DO
+  constructor(x, y, dy, friendly) {
+      this.x = x;
+      this.y = y;
+      this.dy = dy;
+      this.friendly = friendly;
+      this.expired = false;
+  }
+
+  draw(context) {
+    if (this.friendly) {
+      context.fillStyle = 'limegreen';
+    } else {
+      context.fillStyle = 'orange';
+    }
+
+    context.beginPath();
+    context.arc(this.x, this.y, 10, 0, 2*Math.PI);
+    context.fill();
+
+  }
+
+  update(frameLength) {
+    this.y += frameLength * this.dy;
+    this.expired = this.y < -5 || this.y > h+5;
+  }
 
 }
 
@@ -173,7 +199,9 @@ function inputs() {
       player.dx *= 0.8;
     }
 
-    //TO-DO: Write fire button
+    if (pressedKeys["ArrowUp"]) {
+      projectiles.push(new Projectile(player.x, player.y-25, -500, true));
+    }
 
 }
 
@@ -187,9 +215,38 @@ function processes(frameLength) {
 
     player.update(frameLength);
 
+    let oneOfThemHasHitTheEdge = false;
     for (let invader of invaders) {
       invader.update(frameLength);
+      oneOfThemHasHitTheEdge = oneOfThemHasHitTheEdge || invader.edge;
     }
+
+    if (oneOfThemHasHitTheEdge) {
+      for (let invader of invaders) {
+        invader.y += 32;
+        invader.dx = -invader.dx;
+      }
+    }
+
+    for (let projectile of projectiles) {
+      projectile.update(frameLength);
+      if (projectile.friendly) {
+        for (let invader of invaders) {
+          if (seperation(invader, projectile) < 37) {
+            projectile.expired = true;
+            invader.alive = false;
+          }
+        }
+      } else {
+        if (player.alive && seperation(player, projectile) < 37) {
+          projectile.expired = true;
+          player.alive = false;
+        }
+      }
+    }
+
+    invaders = invaders.filter(i => i.alive);
+    projectiles = projectiles.filter(p => !p.expired);
 
 }
 
@@ -206,6 +263,12 @@ function outputs() {
     invader.draw(context);
   }
 
-  player.draw(context);
+  for (let projectile of projectiles) {
+      projectile.draw(context);
+  }
+
+  if (player.alive) {
+    player.draw(context);
+  }
 
 }
